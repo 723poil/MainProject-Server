@@ -57,4 +57,8 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<ProjectMember> projectMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private List<Task> tasks = new ArrayList<>();
 }

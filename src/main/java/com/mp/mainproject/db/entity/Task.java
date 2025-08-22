@@ -1,12 +1,8 @@
 package com.mp.mainproject.db.entity;
 
 import com.mp.mainproject.core.base.BaseEntity;
-import com.mp.mainproject.db.entity.enums.MemberRole;
-import com.mp.mainproject.db.entity.enums.MemberStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -24,35 +22,42 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "project_members")
+@Table(name = "tasks")
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectMember extends BaseEntity {
+public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "int(11)", nullable = false)
-    private Integer projectMemberId;
+    private Integer id;
 
-    @Size(max = 10)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "member_status", columnDefinition = "varchar(10) default 'ACTIVE'", nullable = false)
-    private MemberStatus memberStatus;
+    @Size(max = 30)
+    @NotNull
+    @Column(name = "task_name", columnDefinition = "varchar(30)", nullable = false)
+    private String taskName;
 
-    @Size(max = 10)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "member_role", columnDefinition = "varchar(10) default 'MEMBER'", nullable = false)
-    private MemberRole memberRole;
+    @Size(max = 500)
+    @NotNull
+    @Column(name = "task_content", columnDefinition = "varchar(500)", nullable = false)
+    private String taskContent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @NotNull
+    @Column(name = "duration", columnDefinition = "Decimal(5,1) default 0.0", precision = 5, scale = 1, nullable = false)
+    private Double duration;
+
+    @Column(name = "task_date", columnDefinition = "date", nullable = false)
+    private LocalDate taskDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @OneToMany(mappedBy = "projectMember", fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private List<Task> tasks = new ArrayList<>();
+    private ProjectMember projectMember;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id")
+    private List<TaskTagMap> taskTagMaps = new ArrayList<>();
 }
