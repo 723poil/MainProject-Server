@@ -2,18 +2,22 @@ package com.mp.mainproject.db.entity;
 
 import com.mp.mainproject.core.base.BaseEntity;
 import com.mp.mainproject.db.entity.enums.ProjectStatus;
-import com.mp.mainproject.db.entity.enums.SocialProvider;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,4 +53,8 @@ public class Project extends BaseEntity {
 
     @Column(name = "end_date", columnDefinition = "date", nullable = true)
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private List<ProjectMember> projectMembers = new ArrayList<>();
 }

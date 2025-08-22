@@ -57,4 +57,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private List<FcmToken> fcmTokenEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private List<ProjectMember> projectMembers = new ArrayList<>();
 }
