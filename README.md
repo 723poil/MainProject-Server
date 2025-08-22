@@ -1,1 +1,385 @@
 # MainProject-Server
+
+- [Job](#job)
+- [Project](#project)
+- [User](#user)
+- [All](#all)
+
+## Job
+
+```mermaid
+erDiagram
+"job" {
+  Int id PK
+  String(20) job_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job_role" {
+  Int id PK
+  Int job_id FK
+  String job_role_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job_role" }o--|| "job" : job
+```
+
+### `job`
+
+직군 정보를 담고있는 데이터 모델
+
+Properties as follows:
+
+- `id`: Primary Key.
+- `job_name`: 직군명
+- `use_status`: 사용여부
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+### `job_role`
+
+사용자는 해당 직군테이블에 있는 데이터를 하나 선택해서 가지고 있는다.
+추 후에 여러개의 직군을 가지고 있을 수도 있으니, Users테이블의 job_role_id는 대표 직군으로 인지하고 있으면 될듯 하다.
+개발 초기에는 기본적으로 jobs 테이블의 직군명들을 활용하기 때문에 jobs 와 job_roles를 1:1 관계로 유지한다.
+(상세 직군을 활용하면 그때 1:N으로 변경)
+
+Properties as follows:
+
+- `id`: 직군 상세번호
+- `job_id`: 직군번호
+- `job_role_name`: 직군 상세명
+- `use_status`: 사용여부
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+## Project
+
+```mermaid
+erDiagram
+"project_member" {
+  Int id PK
+  Int project_id FK
+  Int user_id FK
+  MemberStatus member_status
+  MemberRole member_role
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"project" {
+  Int id PK
+  String(100) project_name
+  String(500) project_description
+  prjectStatus project_status
+  DateTime start_date
+  DateTime end_date "nullable"
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task" {
+  Int id PK
+  Int project_id FK
+  Int member_id FK
+  String(30) task_name
+  String(500) task_content
+  Decimal(5) duration
+  DateTime task_date
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task_tag" {
+  Int id PK
+  String(20) task_tag_name
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task_tag_map" {
+  Int id PK
+  Int task_id FK
+  Int task_tag_id FK
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"project_member" }|--|| "project" : project
+"task" }o--|| "project" : project
+"task" }o--|| "project_member" : member
+"task_tag_map" }o--|| "task" : task
+"task_tag_map" }o--|| "task_tag" : task_tag
+```
+
+### `project_member`
+
+프로젝트 멤버 모델
+
+프로젝트에 참여중인 멤버들의 정보를 담아두는 데이터 모델
+
+Properties as follows:
+
+- `id`: Primary Key.
+- `project_id`: projects 테이블과 연결된 key
+- `user_id`: users 테이블과 연결된 key
+- `member_status`
+  > 멤버상태
+  >
+  > ACTIVE, BANNED, DELETED
+- `member_role`
+  > 멤버역할
+  >
+  > OWNER, MEMBER
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+### `project`
+
+프로젝트 모델
+
+프로젝트 기본 정보를 담아두는 데이터 모델
+
+Properties as follows:
+
+- `id`: Primary Key
+- `project_name`
+  > 프로젝트명
+  > 100자 제한
+- `project_description`: 프로젝트 설명
+- `project_status`
+  > 프로젝트 상태
+  >
+  > ACTIVE, STOPPED, FINISHED, DELETED
+- `start_date`
+  > 시작일
+  > YYYY-MM-DD
+- `end_date`
+  > 종료일
+  > YYYY-MM-DD
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+### `task`
+
+프로젝트 태스크 모델
+
+프로젝트에서 진행한 작업내용을 담을 수 있는 데이터 모델
+프로젝트와 프로젝트 멤버와 연결되어 있다.
+
+Properties as follows:
+
+- `id`: Primary Key.
+- `project_id`: projects와 연결된 key
+- `member_id`: project_members와 연결된 key
+- `task_name`: 작업명 (30자)
+- `task_content`: 작업내용
+- `duration`: 소요시간 (30분단위 - 0.5) (Decimal 5, 1)
+- `task_date`
+  > 작업일
+  > YYYY-MM-DD
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+### `task_tag`
+
+태스크에 사용되는 태그 모델
+
+Properties as follows:
+
+- `id`: Primary Key.
+- `task_tag_name`: 작업 태그 명
+- `use_status`: 사용여부
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+### `task_tag_map`
+
+태스크에서 사용되는 태그들을 모아두는 모델
+
+Properties as follows:
+
+- `id`: Primary Key.
+- `task_id`: 작업 번호
+- `task_tag_id`: 작업 태그 번호
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+## User
+
+```mermaid
+erDiagram
+"user" {
+  Int id PK
+  String(50) user_name "nullable"
+  SocialType social_type
+  String(300) social_id
+  UserStatus user_status
+  Int job_role_id FK
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job" {
+  Int id PK
+  String(20) job_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job_role" {
+  Int id PK
+  Int job_id FK
+  String job_role_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"project_member" {
+  Int id PK
+  Int project_id FK
+  Int user_id FK
+  MemberStatus member_status
+  MemberRole member_role
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"user" }o--|| "job_role" : job_role
+"job_role" }o--|| "job" : job
+"project_member" }o--|| "user" : user
+```
+
+### `user`
+
+유저 모델
+
+유저 정보를 담아두는 기본적인 데이터 모델
+
+Properties as follows:
+
+- `id`: Primary Key
+- `user_name`
+  > 유저명
+  > 50자 제한
+- `social_type`
+  > 소셜 로그인 타입
+  >
+  > KAKAO, APPLE, GOOGLE
+- `social_id`
+  > 소셜 로그인 아이디
+  > 300자 제한
+- `user_status`
+  > 유저상태
+  >
+  > REGISTER, ACTIVE, WITHDRAWAL, DELETED
+- `job_role_id`: 선택 직군
+- `created_at`: 생성일자
+- `updated_at`: 수정일자
+- `deleted_at`: 삭제일자
+
+## All
+
+```mermaid
+erDiagram
+"job" {
+  Int id PK
+  String(20) job_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job_role" {
+  Int id PK
+  Int job_id FK
+  String job_role_name UK
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"project_member" {
+  Int id PK
+  Int project_id FK
+  Int user_id FK
+  MemberStatus member_status
+  MemberRole member_role
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"project" {
+  Int id PK
+  String(100) project_name
+  String(500) project_description
+  prjectStatus project_status
+  DateTime start_date
+  DateTime end_date "nullable"
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task" {
+  Int id PK
+  Int project_id FK
+  Int member_id FK
+  String(30) task_name
+  String(500) task_content
+  Decimal(5) duration
+  DateTime task_date
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task_tag" {
+  Int id PK
+  String(20) task_tag_name
+  Boolean use_status
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"task_tag_map" {
+  Int id PK
+  Int task_id FK
+  Int task_tag_id FK
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"user" {
+  Int id PK
+  String(50) user_name "nullable"
+  SocialType social_type
+  String(300) social_id
+  UserStatus user_status
+  Int job_role_id FK
+  DateTime created_at
+  DateTime updated_at "nullable"
+  DateTime deleted_at "nullable"
+}
+"job_role" }o--|| "job" : job
+"project_member" }|--|| "project" : project
+"project_member" }o--|| "user" : user
+"task" }o--|| "project" : project
+"task" }o--|| "project_member" : member
+"task_tag_map" }o--|| "task" : task
+"task_tag_map" }o--|| "task_tag" : task_tag
+"user" }o--|| "job_role" : job_role
+```
+
